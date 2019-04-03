@@ -3,18 +3,18 @@
 <#
     .SYNOPSIS
         Connect to Microsoft Exchange Server and enable or disable Automatic Replies for a specified mailbox
-    
-    .DESCRIPTION  
+
+    .DESCRIPTION
 
     .NOTES
-        This PowerShell script was developed and optimized for ScriptRunner. The use of the scripts requires ScriptRunner. 
-        The customer or user is authorized to copy the script from the repository and use them in ScriptRunner. 
-        The terms of use for ScriptRunner do not apply to this script. In particular, AppSphere AG assumes no liability for the function, 
+        This PowerShell script was developed and optimized for ScriptRunner. The use of the scripts requires ScriptRunner.
+        The customer or user is authorized to copy the script from the repository and use them in ScriptRunner.
+        The terms of use for ScriptRunner do not apply to this script. In particular, AppSphere AG assumes no liability for the function,
         the use and the consequences of the use of this freely available script.
         PowerShell is a product of Microsoft Corporation. ScriptRunner is a product of AppSphere AG.
         © AppSphere AG
 
-    .COMPONENT       
+    .COMPONENT
         ScriptRunner Version 4.x or higher
 
     .LINK
@@ -26,10 +26,10 @@
     .Parameter InternalText
         Specifies the Automatic Replies message that's sent to internal senders or senders within the organization
 
-    .Parameter AutoReplyType 
+    .Parameter AutoReplyType
         Specifies whether Automatic Replies are sent to external senders.
 
-    .Parameter ExternalText 
+    .Parameter ExternalText
         Specifies the Automatic Replies message that's sent to external senders or senders outside the organization
 
     .Parameter StartDate
@@ -45,14 +45,14 @@ param(
     [Parameter(Mandatory = $true,ParameterSetName="Schedule Auto Reply")]
     [string]$MailboxId ,
     [Parameter(Mandatory = $true,ParameterSetName="Enable Auto Reply")]
-    [Parameter(Mandatory = $true,ParameterSetName="Schedule Auto Reply")]
+    [Parameter(Mandatory = $true,ParameterSetName="Schedule Auto Reply",HelpMessage="ASRDisplay(Multiline)")]
     [string]$InternalText,
     [Parameter(ParameterSetName="Enable Auto Reply")]
     [Parameter(ParameterSetName="Schedule Auto Reply")]
     [ValidateSet("All","Only contact list members","Internal only")]
     [string]$AutoReplyType="All",
     [Parameter(ParameterSetName="Enable Auto Reply")]
-    [Parameter(ParameterSetName="Schedule Auto Reply")]
+    [Parameter(ParameterSetName="Schedule Auto Reply",HelpMessage="ASRDisplay(Multiline)")]
     [string]$ExternalText ,
     [Parameter(Mandatory = $true,ParameterSetName="Schedule Auto Reply")]
     [datetime]$StartDate,
@@ -78,14 +78,14 @@ param(
                     $type = 'None'
                 }
                 if([System.String]::IsNullOrWhiteSpace($InternalText) -eq $false){
-                    $InternalText = $InternalText.Replace("StartDate",$StartDate.ToShortDateString()).Replace("EndDate",$EndDate.ToShortDateString())                
+                    $InternalText = $InternalText.Replace("StartDate",$StartDate.ToShortDateString()).Replace("EndDate",$EndDate.ToShortDateString())
                 }
                 if(($type -eq 'All') -or ($type -eq 'Known')){
                     if([System.String]::IsNullOrWhiteSpace($ExternalText) -eq $true){
                         $ExternalText = $InternalText
                     }
                     else {
-                        $ExternalText = $ExternalText.Replace("StartDate",$StartDate.ToShortDateString()).Replace("EndDate",$EndDate.ToShortDateString())                
+                        $ExternalText = $ExternalText.Replace("StartDate",$StartDate.ToShortDateString()).Replace("EndDate",$EndDate.ToShortDateString())
                     }
                 }
                 if($PSCmdlet.ParameterSetName  -eq "Schedule Auto Reply"){
@@ -104,25 +104,25 @@ param(
                 }
                 else {
                     Set-MailboxAutoReplyConfiguration -Identity $box.UserPrincipalName -AutoReplyState 'Enabled' -Confirm:$false -ExternalAudience $type `
-                        -InternalMessage $InternalText -ExternalMessage $ExternalText 
+                        -InternalMessage $InternalText -ExternalMessage $ExternalText
                     $resultMessage += Get-MailboxAutoReplyConfiguration -Identity $box.UserPrincipalName | Select-object * | Format-List
                     $resultMessage += "Mailbox $($box.UserPrincipalName) enabled"
-                }          
+                }
             }
             if($SRXEnv) {
-                $SRXEnv.ResultMessage = $resultMessage 
-            } 
+                $SRXEnv.ResultMessage = $resultMessage
+            }
             else{
-                Write-Output $resultMessage 
+                Write-Output $resultMessage
             }
         }
         else{
             if($SRXEnv) {
                 $SRXEnv.ResultMessage = "Mailbox $($MailboxId) not found"
-            } 
+            }
             Throw "Mailbox $($MailboxId) not found"
         }
     }
     finally{
-     
+
     }
